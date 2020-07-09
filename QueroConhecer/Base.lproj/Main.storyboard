@@ -135,7 +135,7 @@
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XaZ-vn-DkI">
                                         <rect key="frame" x="0.0" y="0.0" width="335" height="567"/>
                                         <subviews>
-                                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="IaR-Xb-hpH">
+                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="IaR-Xb-hpH">
                                                 <rect key="frame" x="149" y="265" width="37" height="37"/>
                                                 <color key="color" name="Main"/>
                                             </activityIndicatorView>
@@ -193,7 +193,7 @@
                         <outlet property="activeIndicatorLoading" destination="IaR-Xb-hpH" id="QYI-ye-qha"/>
                         <outlet property="mapView" destination="Mhq-to-2rg" id="K70-h1-c35"/>
                         <outlet property="textfieldCity" destination="kGc-dG-LDT" id="Lgd-q5-P0z"/>
-                        <outlet property="viewLoading" destination="IaR-Xb-hpH" id="dyZ-Lt-Rpz"/>
+                        <outlet property="viewLoading" destination="XaZ-vn-DkI" id="Npu-Ha-fUe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dLa-8i-f2X" userLabel="First Responder" sceneMemberID="firstResponder"/>
