@@ -25,6 +25,37 @@ class PlacesFinderViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(getLocation(_:)))
+        gesture.minimumPressDuration = 2.0
+        mapView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func getLocation(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            
+            loading(show: true)
+            
+            let point = gesture.location(in: mapView)
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            
+            CLGeocoder().reverseGeocodeLocation(location) { (placemarks, error) in
+                self.processPlacemarkResult(error, placemarks)
+            }
+        }
+    }
+    
+    fileprivate func processPlacemarkResult(_ error: Error?, _ placemarks: [CLPlacemark]?) {
+        self.loading(show: false)
+        
+        if error != nil {
+            self.showMessage(type: .error("Erro ao realizar a busca"))
+            return
+        }
+        
+        if !self.savePlace(with: placemarks?.first) {
+            self.showMessage(type: .error("Local não encontrado"))
+        }
     }
     
     @IBAction func findCity(_ sender: UIButton) {
@@ -33,16 +64,7 @@ class PlacesFinderViewController: UIViewController {
             loading(show: true)
             let geo = CLGeocoder()
             geo.geocodeAddressString(address) { (placemarks, error) in
-                self.loading(show: false)
-                
-                if error != nil {
-                    self.showMessage(type: .error("Erro ao realizar a busca"))
-                    return
-                }
-                
-                if !self.savePlace(with: placemarks?.first) {
-                    self.showMessage(type: .error("Local não encontrado"))
-                }
+                self.processPlacemarkResult(error, placemarks)
             }
         }
     }
@@ -57,7 +79,7 @@ class PlacesFinderViewController: UIViewController {
         let address = Place.getFormattedAddress(with: placemark)
         
         place = Place(name: name, latitude: coord.latitude, longitude: coord.longitude, address: address)
-        let region = MKCoordinateRegion(center: coord, latitudinalMeters: 200, longitudinalMeters: 200)
+        let region = MKCoordinateRegion(center: coord, latitudinalMeters: 100, longitudinalMeters: 100)
         mapView.setRegion(region, animated: true)
         
         showMessage(type: .confirmation(name))
