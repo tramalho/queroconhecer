@@ -9,6 +9,10 @@
 import UIKit
 import MapKit
 
+protocol PlaceFinderDelegate:class {
+    func addPlace(_ place:Place)
+}
+
 class PlacesFinderViewController: UIViewController {
 
     @IBOutlet weak var textfieldCity: UITextField!
@@ -17,6 +21,7 @@ class PlacesFinderViewController: UIViewController {
     @IBOutlet weak var activeIndicatorLoading: UIActivityIndicatorView!
     
     private var place: Place? = nil
+    var delegate: PlaceFinderDelegate?
     
     private enum PlaceFinderMessageType {
         case confirmation(String)
@@ -103,7 +108,11 @@ class PlacesFinderViewController: UIViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let  cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
         let actionAction = UIAlertAction(title: "OK", style: .default) { (action) in
+            if let place = self.place {
+                self.delegate?.addPlace(place)
+            }
             
+            self.dismiss(animated: true, completion: nil)
         }
         
         alert.addAction(cancelAction)

@@ -55,7 +55,7 @@
                         <barButtonItem key="backBarButtonItem" title=" " id="Wac-pe-9gz"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="3eo-qi-HUN">
                             <connections>
-                                <segue destination="N9f-Fg-7tw" kind="presentation" modalPresentationStyle="overFullScreen" modalTransitionStyle="crossDissolve" id="qwt-Jv-Dhw"/>
+                                <segue destination="N9f-Fg-7tw" kind="presentation" identifier="findSegue" modalPresentationStyle="overFullScreen" modalTransitionStyle="crossDissolve" id="qwt-Jv-Dhw"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
