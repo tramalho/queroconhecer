@@ -15,12 +15,35 @@ class MapViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var labelName: UILabel!
     @IBOutlet weak var labelAddress: UILabel!
+    @IBOutlet weak var InfoSectionView: UIView!
+    
+    var places: [Place] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        addToMap()
     }
     
+    func addToMap() {
+        
+        searchBar.isHidden = true
+        InfoSectionView.isHidden = true
+        
+        for place in places {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = place.coordinate
+            annotation.title = place.name
+            mapView.addAnnotation(annotation)
+        }
+        
+        title = "Meus Lugares"
+        
+        if places.count == 1 {
+            title = places[0].name
+        }
+        
+        mapView.showAnnotations(mapView.annotations, animated: true)
+    }
 
     @IBAction func showRoute(_ sender: Any) {
     }

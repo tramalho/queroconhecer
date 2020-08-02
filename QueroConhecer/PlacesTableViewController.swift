@@ -13,9 +13,14 @@ class PlacesTableViewController: UITableViewController {
     private let PLACE_KEY = "places"
     private var places: [Place] = []
     private let ud = UserDefaults.standard
+    private var lbNoPlaces: UILabel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        lbNoPlaces = UILabel()
+        lbNoPlaces?.text = "Cadastre um novo local \nclicando no botão +"
+        lbNoPlaces?.textAlignment = .center
+        lbNoPlaces?.numberOfLines = 0
         loadPlaces()
     }
     
@@ -34,15 +39,36 @@ class PlacesTableViewController: UITableViewController {
         }
     }
     
+    @objc private func showAll() {
+        performSegue(withIdentifier: "mapSegue", sender: nil)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "findSegue" {
             let vc = segue.destination as! PlacesFinderViewController
             vc.delegate = self
+        } else {
+            let vc = segue.destination as! MapViewController
+        
+            if let place = sender as? Place {
+                vc.places = [place]
+            } else {
+                vc.places = places
+            }
         }
     }
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        navigationItem.leftBarButtonItem = nil
+        tableView.backgroundView = lbNoPlaces
+        
+        if places.count > 0 {
+            let btnAll = UIBarButtonItem(title: "Mostrar Todos", style: .plain, target: self, action: #selector(showAll))
+            navigationItem.leftBarButtonItem = btnAll
+            tableView.backgroundView = nil
+        }
+        
         return places.count
     }
 
@@ -54,6 +80,19 @@ class PlacesTableViewController: UITableViewController {
         cell.textLabel?.text = place.name
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let place = places[indexPath.row]
+        performSegue(withIdentifier: "mapSegue", sender: place)
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            places.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            savePlaces()
+        }
     }
 }
 

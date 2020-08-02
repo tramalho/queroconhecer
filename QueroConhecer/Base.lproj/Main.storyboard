@@ -294,6 +294,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="InfoSectionView" destination="fTP-pK-av5" id="Tx0-Ql-QGp"/>
                         <outlet property="labelAddress" destination="CrV-JR-79Q" id="hzz-pL-gY2"/>
                         <outlet property="labelName" destination="zmU-RK-DZG" id="J9E-Iq-RPo"/>
                         <outlet property="mapView" destination="mJs-sZ-wxo" id="USa-a2-6GK"/>
