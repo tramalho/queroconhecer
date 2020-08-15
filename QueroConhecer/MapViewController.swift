@@ -21,6 +21,7 @@ class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        mapView.delegate = self
         addToMap()
     }
     
@@ -30,8 +31,8 @@ class MapViewController: UIViewController {
         InfoSectionView.isHidden = true
         
         for place in places {
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = place.coordinate
+            let annotation = PlaceAnnotation(coordinate: place.coordinate, type: .place)
+            annotation.address = place.address
             annotation.title = place.name
             mapView.addAnnotation(annotation)
         }
@@ -50,5 +51,28 @@ class MapViewController: UIViewController {
     
     
     @IBAction func showSearchBar(_ sender: Any) {
+    }
+}
+
+extension MapViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
+        guard annotation is PlaceAnnotation else { return nil }
+        
+        let type = (annotation as! PlaceAnnotation).type
+        let identifier = "\(type)"
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+        
+        if annotationView == nil  {
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+        }
+        
+        annotationView?.annotation = annotation
+        annotationView?.canShowCallout = true
+        annotationView?.markerTintColor = type == .place ? UIColor(named: "main") : UIColor(named: "poi")
+        annotationView?.glyphImage = type == .place ? UIImage(named: "placeGlyph") : UIImage(named: "poiGlyph")
+        annotationView?.displayPriority = type == .place ? .required : .defaultHigh
+        
+        return annotationView
     }
 }
