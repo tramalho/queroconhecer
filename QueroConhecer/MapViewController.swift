@@ -100,6 +100,12 @@ class MapViewController: UIViewController {
     private func showMessage(type: MapMessageType) {
         
     }
+    
+    private func showInfo(annotation: PlaceAnnotation) {
+        labelName.text = annotation.title
+        labelAddress.text = annotation.address
+        InfoSectionView.isHidden = false
+    }
 }
 
 extension MapViewController: MKMapViewDelegate {
@@ -122,6 +128,17 @@ extension MapViewController: MKMapViewDelegate {
         annotationView?.displayPriority = type == .place ? .required : .defaultHigh
         
         return annotationView
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        if view.annotation is PlaceAnnotation, let coordinate = view.annotation?.coordinate {
+            let camera = MKMapCamera()
+            camera.centerCoordinate = coordinate
+            camera.pitch = 80
+            camera.altitude = 100
+            mapView.setCamera(camera, animated: true)
+            showInfo(annotation: view.annotation as! PlaceAnnotation)
+        }
     }
 }
 
