@@ -227,6 +227,9 @@
                                     <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="mJs-sZ-wxo">
                                         <rect key="frame" x="0.0" y="62" width="355" height="303"/>
                                         <color key="tintColor" name="main"/>
+                                        <connections>
+                                            <outlet property="delegate" destination="4Fs-9l-Umd" id="Jyy-uU-iok"/>
+                                        </connections>
                                     </mapView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fTP-pK-av5">
                                         <rect key="frame" x="0.0" y="371" width="355" height="160"/>
@@ -269,6 +272,10 @@
                                     </view>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="PeR-4Z-sAF">
+                                <rect key="frame" x="169" y="321" width="37" height="37"/>
+                                <color key="color" name="main"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <accessibility key="accessibilityConfiguration" label="Quero"/>
@@ -277,6 +284,8 @@
                             <constraint firstItem="hXa-ZE-b7X" firstAttribute="leading" secondItem="JuW-Xn-7Bv" secondAttribute="leading" constant="10" id="6BO-5z-8Dd"/>
                             <constraint firstItem="JuW-Xn-7Bv" firstAttribute="bottom" secondItem="hXa-ZE-b7X" secondAttribute="bottom" constant="10" id="AcG-zg-nkn"/>
                             <constraint firstItem="hXa-ZE-b7X" firstAttribute="top" secondItem="JuW-Xn-7Bv" secondAttribute="top" constant="10" id="ETW-nx-pgh"/>
+                            <constraint firstItem="PeR-4Z-sAF" firstAttribute="centerX" secondItem="mJs-sZ-wxo" secondAttribute="centerX" id="ISW-7w-h0T"/>
+                            <constraint firstItem="PeR-4Z-sAF" firstAttribute="centerY" secondItem="mJs-sZ-wxo" secondAttribute="centerY" id="Jf6-bq-ujb"/>
                             <constraint firstItem="5ky-f8-hI3" firstAttribute="top" secondItem="JuW-Xn-7Bv" secondAttribute="top" id="KsR-FC-wkM"/>
                             <constraint firstItem="JuW-Xn-7Bv" firstAttribute="trailing" secondItem="hXa-ZE-b7X" secondAttribute="trailing" constant="10" id="PhL-xO-k9Y"/>
                             <constraint firstItem="hXa-ZE-b7X" firstAttribute="top" secondItem="JuW-Xn-7Bv" secondAttribute="top" constant="10" id="QWb-bf-Ql6"/>
@@ -299,6 +308,7 @@
                         <outlet property="InfoSectionView" destination="fTP-pK-av5" id="Tx0-Ql-QGp"/>
                         <outlet property="labelAddress" destination="CrV-JR-79Q" id="hzz-pL-gY2"/>
                         <outlet property="labelName" destination="zmU-RK-DZG" id="J9E-Iq-RPo"/>
+                        <outlet property="loading" destination="PeR-4Z-sAF" id="GNF-ZR-Ian"/>
                         <outlet property="mapView" destination="mJs-sZ-wxo" id="USa-a2-6GK"/>
                         <outlet property="searchBar" destination="fV8-wJ-4U2" id="Ta0-qv-C4N"/>
                     </connections>

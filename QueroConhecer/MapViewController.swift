@@ -10,6 +10,12 @@ import UIKit
 import MapKit
 
 class MapViewController: UIViewController {
+    
+    enum MapMessageType {
+        case errorRoute
+        case authWarning
+    }
+    
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var mapView: MKMapView!
@@ -17,18 +23,33 @@ class MapViewController: UIViewController {
     @IBOutlet weak var labelAddress: UILabel!
     @IBOutlet weak var InfoSectionView: UIView!
     
+    @IBOutlet weak var loading: UIActivityIndicatorView!
+    
     var places: [Place] = []
+    private var poi: [MKAnnotation] = []
+    private lazy var locationManager: CLLocationManager = CLLocationManager()
+    
+    @IBAction func showRoute(_ sender: Any) {
+    }
+    
+    @IBAction func showSearchBar(_ sender: Any) {
+        searchBar.resignFirstResponder()
+        searchBar.isHidden = !searchBar.isHidden
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        mapView.delegate = self
-        addToMap()
+        setup()
+        requestUserLocacationAuth()
     }
     
-    func addToMap() {
-        
+    func setup() {
+        locationManager.delegate = self
+        mapView.delegate = self
+        searchBar.delegate = self
         searchBar.isHidden = true
         InfoSectionView.isHidden = true
+        mapView.mapType = .mutedStandard
         
         for place in places {
             let annotation = PlaceAnnotation(coordinate: place.coordinate, type: .place)
@@ -45,12 +66,39 @@ class MapViewController: UIViewController {
         
         mapView.showAnnotations(mapView.annotations, animated: true)
     }
-
-    @IBAction func showRoute(_ sender: Any) {
+    
+    private func requestUserLocacationAuth() {
+        guard CLLocationManager.locationServicesEnabled() else { return }
+        
+        switch CLLocationManager.authorizationStatus() {
+        case .authorizedAlways, .authorizedWhenInUse:
+            mapView.addSubview(locationButton())
+            break
+        case .denied:
+            showMessage(type: .authWarning)
+            break
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+            break
+        default:
+            break
+        }
     }
     
+    private func locationButton() -> MKUserTrackingButton {
+        let button = MKUserTrackingButton(mapView: mapView)
+        button.frame.origin.x = 10
+        button.frame.origin.y = 10
+        button.layer.borderColor = UIColor(named: "main")?.cgColor
+        button.layer.borderWidth = 1
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .white
+        
+        return button
+    }
     
-    @IBAction func showSearchBar(_ sender: Any) {
+    private func showMessage(type: MapMessageType) {
+        
     }
 }
 
@@ -76,3 +124,57 @@ extension MapViewController: MKMapViewDelegate {
         return annotationView
     }
 }
+
+extension MapViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.isHidden = true
+        searchBar.resignFirstResponder()
+        loading.startAnimating()
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = searchBar.text
+        request.region = mapView.region
+        
+        let search = MKLocalSearch(request: request)
+        search.start { (response, error) in
+            
+            guard let response = response else {
+                self.loading.stopAnimating()
+                return
+            }
+            self.addNewPoi(response: response)
+            self.loading.stopAnimating()
+        }
+    }
+    
+    private func addNewPoi(response: MKLocalSearch.Response) {
+        self.mapView.removeAnnotations(self.poi)
+        self.poi.removeAll()
+        for item in response.mapItems {
+            let annotation = PlaceAnnotation(coordinate: item.placemark.coordinate, type: .poi)
+            annotation.title = item.name
+            annotation.subtitle = item.phoneNumber
+            annotation.address = Place.getFormattedAddress(with: item.placemark)
+            self.poi.append(annotation)
+        }
+        self.mapView.addAnnotations(self.poi)
+        self.mapView.showAnnotations(self.poi, animated: true)
+    }
+}
+
+extension MapViewController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        
+        if status == .authorizedAlways || status == .authorizedWhenInUse {
+            mapView.showsUserLocation = true
+            mapView.addSubview(locationButton())
+            locationManager.startUpdatingLocation()
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print(locations.last ?? "without location")
+    }
+}
+
