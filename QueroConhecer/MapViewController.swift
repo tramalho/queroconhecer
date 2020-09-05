@@ -28,8 +28,34 @@ class MapViewController: UIViewController {
     var places: [Place] = []
     private var poi: [MKAnnotation] = []
     private lazy var locationManager: CLLocationManager = CLLocationManager()
+    private var selectedAnnotation: PlaceAnnotation?
     
     @IBAction func showRoute(_ sender: Any) {
+        if CLLocationManager.authorizationStatus() != .authorizedWhenInUse {
+            showMessage(type: .authWarning)
+            return
+        }
+        
+        if let selected = selectedAnnotation?.coordinate, let actual = locationManager.location?.coordinate {
+            let request = MKDirections.Request()
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: selected))
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: actual))
+            
+            let directions = MKDirections(request: request)
+            directions.calculate { (response, error) in
+                
+                guard error == nil else { self.showMessage(type: .errorRoute); return }
+                
+                if let route = response?.routes.first {
+                    self.mapView.removeOverlays(self.mapView.overlays)
+                    self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+                    
+                    var annotations = self.mapView.annotations.filter({!($0 is PlaceAnnotation)})
+                    annotations.append(self.selectedAnnotation!)
+                    self.mapView.showAnnotations(annotations, animated: true)
+                }
+            }
+        }
     }
     
     @IBAction func showSearchBar(_ sender: Any) {
@@ -99,6 +125,31 @@ class MapViewController: UIViewController {
     
     private func showMessage(type: MapMessageType) {
         
+        var message = "Não foi possível traçar essa rota"
+        var title = "Erro"
+        let  cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
+        var  confirmAction: UIAlertAction? = nil
+        
+        if(.authWarning == type) {
+            title = "Aviso"
+            message = "Para utilizar os recursos de localização você precisa habilitar a permissão na tela de ajustes"
+            
+            confirmAction = UIAlertAction(title: "Ir a Ajustes", style: .default) { (action) in
+                
+                if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(appSettings, options: [:], completionHandler: nil)
+                }
+            }
+        }
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(cancelAction)
+        
+        if let confirmAction = confirmAction {
+            alert.addAction(confirmAction)
+        }
+        
+        present(alert, animated: true, completion: nil)
     }
     
     private func showInfo(annotation: PlaceAnnotation) {
@@ -132,13 +183,26 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if view.annotation is PlaceAnnotation, let coordinate = view.annotation?.coordinate {
+            selectedAnnotation = (view.annotation as! PlaceAnnotation)
             let camera = MKMapCamera()
             camera.centerCoordinate = coordinate
             camera.pitch = 80
             camera.altitude = 100
             mapView.setCamera(camera, animated: true)
-            showInfo(annotation: view.annotation as! PlaceAnnotation)
+            showInfo(annotation: selectedAnnotation!)
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        
+        if overlay is MKPolyline {
+            let mkOverlayRenderer = MKPolylineRenderer(overlay: overlay)
+            mkOverlayRenderer.strokeColor = UIColor(named: "main")?.withAlphaComponent(0.8)
+            mkOverlayRenderer.lineWidth = 4.0
+            return mkOverlayRenderer
+        }
+        
+        return MKOverlayRenderer(overlay: overlay)
     }
 }
 
